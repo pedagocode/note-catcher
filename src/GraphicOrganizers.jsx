@@ -2,8 +2,8 @@ import { useState } from "react";
 
 /* ─── Band colors ─── */
 const BANDS = {
-  ms: { color: "#0D9488", bg: "#F0FDFA", border: "#99F6E4", tagBg: "#CCFBF1", label: "Grades 6–8" },
-  hs: { color: "#6366F1", bg: "#EEF2FF", border: "#C7D2FE", tagBg: "#E0E7FF", label: "Grades 9–12" },
+  ms: { color: "#09B472", bg: "#E6F9F0", border: "#A3E8B8", tagBg: "#D1F4DE", label: "Grades 6–8" },
+  hs: { color: "#827AB9", bg: "#F0EEF8", border: "#C2BDF2", tagBg: "#DDD8F5", label: "Grades 9–12" },
 };
 
 /* ─── Template registry ─── */
@@ -41,15 +41,16 @@ export function getDefaultData(type) {
 const S = {
   cell: {
     width: "100%", border: "none", borderRadius: 4, padding: "7px 9px",
-    fontSize: 12, fontFamily: "Georgia, serif", color: "#1C1917",
+    fontSize: 12, fontFamily: "'Lexend', sans-serif", color: "#3F4C4C",
     resize: "vertical", outline: "none", lineHeight: 1.5, boxSizing: "border-box",
+    overflowWrap: "break-word", wordBreak: "break-word",
   },
   hdr: {
-    fontSize: 10, fontWeight: "bold", fontFamily: "monospace", textTransform: "uppercase",
+    fontSize: 10, fontWeight: "bold", fontFamily: "'Lexend', sans-serif", textTransform: "uppercase",
     letterSpacing: 1.5, marginBottom: 5,
   },
   addBtn: (color) => ({
-    fontSize: 10, fontFamily: "monospace", padding: "4px 10px", borderRadius: 5,
+    fontSize: 10, fontFamily: "'Lexend', sans-serif", padding: "4px 10px", borderRadius: 5,
     cursor: "pointer", border: `1.5px dashed ${color}`, background: "transparent",
     color, marginTop: 6,
   }),
@@ -57,7 +58,7 @@ const S = {
     background: "none", border: "none", cursor: "pointer", opacity: 0.35, fontSize: 12, padding: "0 4px",
   },
   secLabel: (color) => ({
-    fontSize: 9, fontFamily: "monospace", fontWeight: "bold", textTransform: "uppercase",
+    fontSize: 9, fontFamily: "'Lexend', sans-serif", fontWeight: "bold", textTransform: "uppercase",
     letterSpacing: 1, color, marginBottom: 4, marginTop: 10,
   }),
 };
@@ -406,7 +407,7 @@ export default function OrganizerRenderer({ type, data, onChange }) {
   const tmpl = ORGANIZER_TEMPLATES.find((t) => t.id === type);
   const band = tmpl ? BANDS[tmpl.band] : BANDS.ms;
   const Comp = COMPONENTS[type];
-  if (!Comp) return <div style={{ color: "#A8A29E", fontSize: 12 }}>Unknown organizer type</div>;
+  if (!Comp) return <div style={{ color: "#7A8B8B", fontSize: 12 }}>Unknown organizer type</div>;
   return <Comp data={data} onChange={onChange} band={band} />;
 }
 

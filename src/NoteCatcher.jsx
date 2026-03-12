@@ -5,10 +5,10 @@ const LEVELS = [
     id: "remember",
     label: "Remember & Notice",
     dok: "DOK 1",
-    color: "#3B82F6",
-    bg: "#EFF6FF",
-    border: "#BFDBFE",
-    tagBg: "#DBEAFE",
+    color: "#13B5EA",
+    bg: "#E8F7FD",
+    border: "#84DBEF",
+    tagBg: "#D0EFFA",
     blocks: [
       { id: "notice", label: "I noticed...", prompt: "What did you observe or see?" },
       { id: "term", label: "Key term:", prompt: "Define the key vocabulary." },
@@ -20,10 +20,10 @@ const LEVELS = [
     id: "understand",
     label: "Understand & Explain",
     dok: "DOK 2",
-    color: "#10B981",
-    bg: "#ECFDF5",
-    border: "#A7F3D0",
-    tagBg: "#D1FAE5",
+    color: "#09B472",
+    bg: "#E6F9F0",
+    border: "#A3E8B8",
+    tagBg: "#D1F4DE",
     blocks: [
       { id: "means", label: "This means...", prompt: "What does this idea mean?" },
       { id: "words", label: "In my own words...", prompt: "Explain it without the text." },
@@ -35,10 +35,10 @@ const LEVELS = [
     id: "analyze",
     label: "Apply & Analyze",
     dok: "DOK 3",
-    color: "#F59E0B",
-    bg: "#FFFBEB",
-    border: "#FDE68A",
-    tagBg: "#FEF3C7",
+    color: "#A18630",
+    bg: "#FFF9E6",
+    border: "#FBD206",
+    tagBg: "#FFF5BB",
     blocks: [
       { id: "connects", label: "This connects to...", prompt: "What prior knowledge or text does this link to?" },
       { id: "pattern", label: "The pattern I see is...", prompt: "What repeats or structures the idea?" },
@@ -50,10 +50,10 @@ const LEVELS = [
     id: "evaluate",
     label: "Evaluate & Synthesize",
     dok: "DOK 4",
-    color: "#8B5CF6",
-    bg: "#F5F3FF",
-    border: "#DDD6FE",
-    tagBg: "#EDE9FE",
+    color: "#827AB9",
+    bg: "#F0EEF8",
+    border: "#C2BDF2",
+    tagBg: "#DDD8F5",
     blocks: [
       { id: "claim", label: "My claim is...", prompt: "What argument or position do you want to defend?" },
       { id: "agree", label: "I agree / disagree because...", prompt: "Take a stance and explain your reasoning." },
@@ -62,7 +62,7 @@ const LEVELS = [
     ],
   },
 ];
-const DRAW_COLORS = ["#1C1917", "#3B82F6", "#EF4444", "#10B981", "#F59E0B", "#8B5CF6"];
+const DRAW_COLORS = ["#3F4C4C", "#13B5EA", "#FF6252", "#09B472", "#FBD206", "#827AB9"];
 
 function DoodlePad({ noteUid, color, bg, onDataChange, initialData }) {
   const canvasRef = useRef(null);
@@ -146,32 +146,32 @@ function DoodlePad({ noteUid, color, bg, onDataChange, initialData }) {
             key={c}
             onClick={() => { setPenColor(c); setErasing(false); }}
             style={{
-              width: 18, height: 18, borderRadius: "50%", background: c, border: penColor === c && !erasing ? "2.5px solid #1C1917" : "2px solid #D6D3D1",
-              cursor: "pointer", padding: 0, boxShadow: penColor === c && !erasing ? "0 0 0 2px #FCD34D" : "none",
+              width: 18, height: 18, borderRadius: "50%", background: c, border: penColor === c && !erasing ? "2.5px solid #3F4C4C" : "2px solid #DCE2E1",
+              cursor: "pointer", padding: 0, boxShadow: penColor === c && !erasing ? "0 0 0 2px #FBD206" : "none",
             }}
           />
         ))}
-        <div style={{ width: 1, height: 16, background: "#D6D3D1", margin: "0 2px" }} />
+        <div style={{ width: 1, height: 16, background: "#DCE2E1", margin: "0 2px" }} />
         {[2, 4, 7].map((s) => (
           <button
             key={s}
             onClick={() => setPenSize(s)}
             style={{
-              width: 22, height: 22, borderRadius: 4, background: penSize === s ? "#F5F5F4" : "transparent",
-              border: penSize === s ? "1.5px solid #A8A29E" : "1.5px solid transparent", cursor: "pointer",
+              width: 22, height: 22, borderRadius: 4, background: penSize === s ? "#EEF1F0" : "transparent",
+              border: penSize === s ? "1.5px solid #7A8B8B" : "1.5px solid transparent", cursor: "pointer",
               display: "flex", alignItems: "center", justifyContent: "center", padding: 0,
             }}
           >
-            <div style={{ width: s + 2, height: s + 2, borderRadius: "50%", background: "#1C1917" }} />
+            <div style={{ width: s + 2, height: s + 2, borderRadius: "50%", background: "#3F4C4C" }} />
           </button>
         ))}
-        <div style={{ width: 1, height: 16, background: "#D6D3D1", margin: "0 2px" }} />
+        <div style={{ width: 1, height: 16, background: "#DCE2E1", margin: "0 2px" }} />
         <button
           onClick={() => setErasing((v) => !v)}
           style={{
-            fontSize: 10, fontFamily: "monospace", padding: "3px 7px", borderRadius: 4, cursor: "pointer",
-            background: erasing ? "#FEE2E2" : "transparent", border: erasing ? "1.5px solid #FCA5A5" : "1.5px solid #D6D3D1",
-            color: erasing ? "#DC2626" : "#78716C",
+            fontSize: 10, fontFamily: "'Lexend', sans-serif", padding: "3px 7px", borderRadius: 4, cursor: "pointer",
+            background: erasing ? "#FEE2E2" : "transparent", border: erasing ? "1.5px solid #FCA5A5" : "1.5px solid #DCE2E1",
+            color: erasing ? "#DC2626" : "#7A8B8B",
           }}
         >
           eraser
@@ -179,8 +179,8 @@ function DoodlePad({ noteUid, color, bg, onDataChange, initialData }) {
         <button
           onClick={clearCanvas}
           style={{
-            fontSize: 10, fontFamily: "monospace", padding: "3px 7px", borderRadius: 4, cursor: "pointer",
-            background: "transparent", border: "1.5px solid #D6D3D1", color: "#78716C",
+            fontSize: 10, fontFamily: "'Lexend', sans-serif", padding: "3px 7px", borderRadius: 4, cursor: "pointer",
+            background: "transparent", border: "1.5px solid #DCE2E1", color: "#7A8B8B",
           }}
         >
           clear
@@ -199,7 +199,7 @@ function DoodlePad({ noteUid, color, bg, onDataChange, initialData }) {
         onTouchMove={draw}
         onTouchEnd={endDraw}
         style={{
-          width: "100%", height: 160, borderRadius: 5, border: "1.5px dashed #D6D3D1",
+          width: "100%", height: 160, borderRadius: 5, border: "1.5px dashed #DCE2E1",
           cursor: erasing ? "cell" : "crosshair", touchAction: "none", display: "block",
           background: "#FFFFFF",
         }}
@@ -259,43 +259,44 @@ export default function NoteCatcher() {
   const activeL = LEVELS.find((l) => l.id === activeLevel);
   return (
     <div style={{
-      fontFamily: "'Georgia', serif",
-      minHeight: "100vh",
-      background: "#F8F7F4",
+      fontFamily: "'Lexend', sans-serif",
+      height: "100vh",
+      background: "#F4F7F6",
       display: "flex",
       flexDirection: "column",
+      overflow: "hidden",
     }}>
       {/* Header */}
       <div style={{
-        background: "#1C1917",
+        background: "#FFFFFF",
         padding: "16px 24px",
         display: "flex",
         alignItems: "center",
         gap: 16,
-        borderBottom: "3px solid #D97706",
+        borderBottom: "3px solid #FF6252",
         flexShrink: 0,
       }}>
         <div>
-          <div style={{ color: "#FCD34D", fontSize: 10, letterSpacing: 3, textTransform: "uppercase", fontFamily: "monospace", marginBottom: 3 }}>
+          <div style={{ color: "#FF6252", fontSize: 10, letterSpacing: 3, textTransform: "uppercase", fontFamily: "'Lexend', sans-serif", fontWeight: 600, marginBottom: 3 }}>
             Digital Note Builder
           </div>
-          <div style={{ color: "#FAFAF9", fontSize: 18, fontWeight: "bold" }}>
+          <div style={{ color: "#3F4C4C", fontSize: 18, fontWeight: "bold" }}>
             My Learning Notes
           </div>
         </div>
         <input
           value={topic}
           onChange={(e) => setTopic(e.target.value)}
-          placeholder="Topic or reading title..."
+          placeholder="🔍 Topic or reading title..."
           style={{
             marginLeft: "auto",
-            background: "transparent",
-            border: "1px solid #57534E",
+            background: "#EEF1F0",
+            border: "1px solid #DCE2E1",
             borderRadius: 6,
             padding: "7px 12px",
-            color: "#E7E5E4",
+            color: "#3F4C4C",
             fontSize: 13,
-            fontFamily: "Georgia, serif",
+            fontFamily: "'Lexend', sans-serif",
             width: 260,
             outline: "none",
           }}
@@ -305,24 +306,24 @@ export default function NoteCatcher() {
         {/* Sidebar */}
         <div style={{
           width: 240,
-          background: "#FAFAF9",
-          borderRight: "1px solid #E7E5E4",
+          background: "#F4F7F6",
+          borderRight: "1px solid #DCE2E1",
           overflowY: "auto",
           flexShrink: 0,
           display: "flex",
           flexDirection: "column",
         }}>
           {/* Sidebar mode toggle */}
-          <div style={{ display: "flex", margin: "10px 10px 6px", borderRadius: 7, overflow: "hidden", border: "1px solid #E7E5E4" }}>
+          <div style={{ display: "flex", margin: "10px 10px 6px", borderRadius: 7, overflow: "hidden", border: "1px solid #DCE2E1" }}>
             {[{ key: "blocks", label: "Blocks" }, { key: "organizers", label: "Organizers" }].map(({ key, label }) => (
               <button
                 key={key}
                 onClick={() => setSidebarMode(key)}
                 style={{
-                  flex: 1, padding: "6px 0", fontSize: 10, fontFamily: "monospace", fontWeight: "bold",
+                  flex: 1, padding: "6px 0", fontSize: 10, fontFamily: "'Lexend', sans-serif", fontWeight: "bold",
                   letterSpacing: 1, textTransform: "uppercase", border: "none", cursor: "pointer",
-                  background: sidebarMode === key ? "#1C1917" : "#FAFAF9",
-                  color: sidebarMode === key ? "#FCD34D" : "#78716C",
+                  background: sidebarMode === key ? "#FF6252" : "#F4F7F6",
+                  color: sidebarMode === key ? "#FFFFFF" : "#7A8B8B",
                 }}
               >{label}</button>
             ))}
@@ -330,7 +331,7 @@ export default function NoteCatcher() {
 
           {sidebarMode === "blocks" ? (
             <>
-              <div style={{ padding: "8px 14px 6px", color: "#78716C", fontSize: 10, letterSpacing: 2, textTransform: "uppercase", fontFamily: "monospace" }}>
+              <div style={{ padding: "8px 14px 6px", color: "#7A8B8B", fontSize: 10, letterSpacing: 2, textTransform: "uppercase", fontFamily: "'Lexend', sans-serif" }}>
                 Block Palette
               </div>
               <div style={{ padding: "0 10px 10px" }}>
@@ -351,14 +352,14 @@ export default function NoteCatcher() {
                     }}
                   >
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <span style={{ fontSize: 12, color: "#1C1917", fontFamily: "Georgia, serif" }}>{level.label}</span>
+                      <span style={{ fontSize: 12, color: "#3F4C4C", fontFamily: "'Lexend', sans-serif" }}>{level.label}</span>
                       <span style={{
                         fontSize: 9,
                         color: level.color,
                         background: level.tagBg,
                         padding: "2px 5px",
                         borderRadius: 3,
-                        fontFamily: "monospace",
+                        fontFamily: "'Lexend', sans-serif",
                         fontWeight: "bold",
                       }}>{level.dok}</span>
                     </div>
@@ -372,7 +373,7 @@ export default function NoteCatcher() {
                     color: activeL.color,
                     letterSpacing: 1.5,
                     textTransform: "uppercase",
-                    fontFamily: "monospace",
+                    fontFamily: "'Lexend', sans-serif",
                     marginBottom: 8,
                     paddingLeft: 2,
                   }}>
@@ -398,10 +399,10 @@ export default function NoteCatcher() {
                       onMouseEnter={(e) => { e.currentTarget.style.background = activeL.bg; }}
                       onMouseLeave={(e) => { e.currentTarget.style.background = "#FFFFFF"; }}
                     >
-                      <div style={{ fontSize: 12, fontWeight: "bold", color: "#1C1917", marginBottom: 2, fontFamily: "Georgia, serif" }}>
+                      <div style={{ fontSize: 12, fontWeight: "bold", color: "#3F4C4C", marginBottom: 2, fontFamily: "'Lexend', sans-serif" }}>
                         {block.label}
                       </div>
-                      <div style={{ fontSize: 10, color: "#A8A29E", fontFamily: "monospace", lineHeight: 1.4 }}>
+                      <div style={{ fontSize: 10, color: "#7A8B8B", fontFamily: "'Lexend', sans-serif", lineHeight: 1.4 }}>
                         {block.prompt}
                       </div>
                     </button>
@@ -416,7 +417,7 @@ export default function NoteCatcher() {
                 const templates = ORGANIZER_TEMPLATES.filter((t) => t.band === bandKey);
                 return (
                   <div key={bandKey} style={{ marginBottom: 14 }}>
-                    <div style={{ fontSize: 10, color: band.color, letterSpacing: 1.5, textTransform: "uppercase", fontFamily: "monospace", marginBottom: 6, paddingLeft: 2 }}>
+                    <div style={{ fontSize: 10, color: band.color, letterSpacing: 1.5, textTransform: "uppercase", fontFamily: "'Lexend', sans-serif", marginBottom: 6, paddingLeft: 2 }}>
                       {band.label}
                     </div>
                     {templates.map((tmpl) => (
@@ -441,7 +442,7 @@ export default function NoteCatcher() {
                       >
                         <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
                           <span style={{ fontSize: 15 }}>{tmpl.icon}</span>
-                          <span style={{ fontSize: 12, fontWeight: "bold", color: "#1C1917", fontFamily: "Georgia, serif" }}>{tmpl.label}</span>
+                          <span style={{ fontSize: 12, fontWeight: "bold", color: "#3F4C4C", fontFamily: "'Lexend', sans-serif" }}>{tmpl.label}</span>
                         </div>
                       </button>
                     ))}
@@ -456,11 +457,11 @@ export default function NoteCatcher() {
           {topic && (
             <div style={{
               fontSize: 12,
-              color: "#78716C",
-              fontFamily: "monospace",
+              color: "#7A8B8B",
+              fontFamily: "'Lexend', sans-serif",
               marginBottom: 18,
               paddingBottom: 10,
-              borderBottom: "1px dashed #D6D3D1",
+              borderBottom: "1px dashed #DCE2E1",
               letterSpacing: 1,
             }}>
               TOPIC: {topic.toUpperCase()}
@@ -473,12 +474,12 @@ export default function NoteCatcher() {
               alignItems: "center",
               justifyContent: "center",
               minHeight: 300,
-              color: "#A8A29E",
+              color: "#7A8B8B",
               textAlign: "center",
             }}>
               <div style={{ fontSize: 36, marginBottom: 14 }}>📓</div>
-              <div style={{ fontSize: 15, fontFamily: "Georgia, serif", marginBottom: 6 }}>Your notebook is empty</div>
-              <div style={{ fontSize: 12, fontFamily: "monospace", maxWidth: 260, lineHeight: 1.6 }}>
+              <div style={{ fontSize: 15, fontFamily: "'Lexend', sans-serif", marginBottom: 6 }}>Your notebook is empty</div>
+              <div style={{ fontSize: 12, fontFamily: "'Lexend', sans-serif", maxWidth: 260, lineHeight: 1.6 }}>
                 Choose blocks or graphic organizers from the palette on the left to start building your notes.
               </div>
             </div>
@@ -499,14 +500,14 @@ export default function NoteCatcher() {
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
                       {note.type === "organizer" && <span style={{ fontSize: 15 }}>{note.icon}</span>}
-                      <span style={{ fontSize: 13, fontWeight: "bold", color: "#1C1917", fontFamily: "Georgia, serif" }}>{note.label}</span>
+                      <span style={{ fontSize: 13, fontWeight: "bold", color: "#3F4C4C", fontFamily: "'Lexend', sans-serif" }}>{note.label}</span>
                       <span style={{
                         fontSize: 9,
                         background: note.tagBg,
                         color: note.color,
                         padding: "2px 6px",
                         borderRadius: 3,
-                        fontFamily: "monospace",
+                        fontFamily: "'Lexend', sans-serif",
                         fontWeight: "bold",
                       }}>{note.type === "organizer" ? note.bandLabel : note.levelLabel}</span>
                     </div>
@@ -526,7 +527,7 @@ export default function NoteCatcher() {
                   ) : (
                     /* ── Standard Block Note ── */
                     <>
-                      <div style={{ fontSize: 10, color: "#A8A29E", fontFamily: "monospace", marginBottom: 7 }}>
+                      <div style={{ fontSize: 10, color: "#7A8B8B", fontFamily: "'Lexend', sans-serif", marginBottom: 7 }}>
                         {note.prompt}
                       </div>
                       <textarea
@@ -541,12 +542,14 @@ export default function NoteCatcher() {
                           borderRadius: 5,
                           padding: "9px 11px",
                           fontSize: 13,
-                          fontFamily: "Georgia, serif",
-                          color: "#1C1917",
+                          fontFamily: "'Lexend', sans-serif",
+                          color: "#3F4C4C",
                           resize: "vertical",
                           outline: "none",
                           lineHeight: 1.6,
                           boxSizing: "border-box",
+                          overflowWrap: "break-word",
+                          wordBreak: "break-word",
                         }}
                       />
                       <button
@@ -557,13 +560,13 @@ export default function NoteCatcher() {
                           alignItems: "center",
                           gap: 4,
                           fontSize: 10,
-                          fontFamily: "monospace",
+                          fontFamily: "'Lexend', sans-serif",
                           padding: "4px 9px",
                           borderRadius: 5,
                           cursor: "pointer",
                           background: note.drawing ? note.tagBg : "transparent",
-                          border: note.drawing ? `1.5px solid ${note.color}` : "1.5px solid #D6D3D1",
-                          color: note.drawing ? note.color : "#A8A29E",
+                          border: note.drawing ? `1.5px solid ${note.color}` : "1.5px solid #DCE2E1",
+                          color: note.drawing ? note.color : "#7A8B8B",
                           transition: "all 0.15s",
                         }}
                       >
@@ -589,13 +592,13 @@ export default function NoteCatcher() {
         {/* Right Summary Panel */}
         <div style={{
           width: 180,
-          background: "#FAFAF9",
-          borderLeft: "1px solid #E7E5E4",
+          background: "#F4F7F6",
+          borderLeft: "1px solid #DCE2E1",
           padding: "14px 12px",
           flexShrink: 0,
           overflowY: "auto",
         }}>
-          <div style={{ fontSize: 10, color: "#78716C", letterSpacing: 2, textTransform: "uppercase", fontFamily: "monospace", marginBottom: 12 }}>
+          <div style={{ fontSize: 10, color: "#7A8B8B", letterSpacing: 2, textTransform: "uppercase", fontFamily: "'Lexend', sans-serif", marginBottom: 12 }}>
             My Notes Map
           </div>
           {LEVELS.map((level) => {
@@ -603,10 +606,10 @@ export default function NoteCatcher() {
             return (
               <div key={level.id} style={{ marginBottom: 12 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
-                  <span style={{ fontSize: 10, color: "#57534E", fontFamily: "monospace" }}>{level.dok}</span>
-                  <span style={{ fontSize: 10, color: level.color, fontWeight: "bold", fontFamily: "monospace" }}>{count}</span>
+                  <span style={{ fontSize: 10, color: "#3F4C4C", fontFamily: "'Lexend', sans-serif" }}>{level.dok}</span>
+                  <span style={{ fontSize: 10, color: level.color, fontWeight: "bold", fontFamily: "'Lexend', sans-serif" }}>{count}</span>
                 </div>
-                <div style={{ height: 5, background: "#E7E5E4", borderRadius: 3, overflow: "hidden" }}>
+                <div style={{ height: 5, background: "#DCE2E1", borderRadius: 3, overflow: "hidden" }}>
                   <div style={{
                     height: "100%",
                     width: notes.length > 0 ? `${(count / notes.length) * 100}%` : "0%",
@@ -621,28 +624,28 @@ export default function NoteCatcher() {
           <div style={{
             marginTop: 16,
             padding: "9px",
-            background: "#F5F5F4",
+            background: "#EEF1F0",
             borderRadius: 7,
             fontSize: 10,
-            fontFamily: "monospace",
-            color: "#78716C",
+            fontFamily: "'Lexend', sans-serif",
+            color: "#7A8B8B",
             lineHeight: 1.6,
           }}>
-            <div style={{ fontWeight: "bold", color: "#1C1917", marginBottom: 5 }}>Total: {notes.length} blocks</div>
+            <div style={{ fontWeight: "bold", color: "#3F4C4C", marginBottom: 5 }}>Total: {notes.length} blocks</div>
             {(() => {
               const orgCount = notes.filter(n => n.type === "organizer").length;
               return orgCount > 0 && (
-                <div style={{ color: "#0D9488", marginBottom: 4 }}>📐 {orgCount} organizer{orgCount > 1 ? "s" : ""}</div>
+                <div style={{ color: "#09B472", marginBottom: 4 }}>📐 {orgCount} organizer{orgCount > 1 ? "s" : ""}</div>
               );
             })()}
             {notes.length > 0 && notes.filter(n => n.levelId === "evaluate" || n.levelId === "analyze").length === 0 && notes.some(n => n.type !== "organizer") && (
-              <div style={{ color: "#D97706" }}>💡 Try an analysis or evaluation block!</div>
+              <div style={{ color: "#A18630" }}>💡 Try an analysis or evaluation block!</div>
             )}
             {notes.filter(n => n.levelId === "evaluate" || n.levelId === "analyze").length > 0 && (
-              <div style={{ color: "#10B981" }}>✓ Strong higher-order thinking!</div>
+              <div style={{ color: "#09B472" }}>✓ Strong higher-order thinking!</div>
             )}
             {notes.length >= 5 && (
-              <div style={{ color: "#3B82F6", marginTop: 4 }}>📚 Solid note set!</div>
+              <div style={{ color: "#13B5EA", marginTop: 4 }}>📚 Solid note set!</div>
             )}
           </div>
         </div>
