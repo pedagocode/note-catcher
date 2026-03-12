@@ -16,24 +16,40 @@ st.markdown("""
     }
     /* Header bar */
     .header-bar {
-        background: #3F4C4C;
-        padding: 18px 24px;
-        border-bottom: 4px solid #FF6252;
-        border-radius: 10px;
-        margin-bottom: 16px;
+        background: #FFFFFF;
+        padding: 16px 0 14px;
+        border-bottom: 3px solid #FF6252;
+        margin-bottom: 12px;
     }
     .header-bar .subtitle {
-        color: #FBD206;
+        color: #FF6252;
         font-size: 11px;
         letter-spacing: 3px;
         text-transform: uppercase;
-        font-weight: 500;
-        margin-bottom: 3px;
+        font-weight: 600;
+        margin-bottom: 2px;
     }
     .header-bar .title {
-        color: #FFFFFF;
+        color: #3F4C4C;
         font-size: 22px;
         font-weight: 700;
+    }
+    /* Topic search bar */
+    .topic-bar input {
+        background: #EEF1F0 !important;
+        border: 1.5px solid #DCE2E1 !important;
+        border-radius: 8px !important;
+        padding: 10px 14px !important;
+        font-size: 14px !important;
+        color: #3F4C4C !important;
+    }
+    .topic-bar input:focus {
+        border-color: #13B5EA !important;
+        box-shadow: 0 0 0 2px rgba(19,181,234,0.15) !important;
+        background: #FFFFFF !important;
+    }
+    .topic-bar input::placeholder {
+        color: #A3AAA8 !important;
     }
     /* Note cards */
     .note-card {
@@ -281,8 +297,11 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-topic = st.text_input("Topic or reading title", key="topic_input", label_visibility="collapsed",
-                       placeholder="Topic or reading title...")
+with st.container():
+    st.markdown('<div class="topic-bar">', unsafe_allow_html=True)
+    topic = st.text_input("Topic or reading title", key="topic_input", label_visibility="collapsed",
+                           placeholder="🔍  Topic or reading title...")
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # ──────────────────────────────────────────────
 # SIDEBAR
