@@ -1,6 +1,17 @@
+:root {
+  color-scheme: light only;
+}
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   font-family: 'Lexend', sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  html, body {
+    background-color: #F4F7F6;
+    color: #3F4C4C;
+  }
 }
