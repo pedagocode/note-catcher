@@ -5,93 +5,118 @@ import json
 # ─── Page config ───
 st.set_page_config(page_title="Digital Note Builder", page_icon="📓", layout="wide")
 
-# ─── Custom CSS ───
+# ─── Custom CSS (Kiddom brand) ───
 st.markdown("""
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+    /* Global font */
+    html, body, [class*="css"], .stTextInput input, .stTextArea textarea,
+    .stRadio label, .stButton button, .stCheckbox label, .stCaption {
+        font-family: 'Lexend', sans-serif !important;
+    }
     /* Header bar */
     .header-bar {
-        background: #1C1917;
-        padding: 16px 24px;
-        border-bottom: 3px solid #D97706;
-        border-radius: 8px;
+        background: #3F4C4C;
+        padding: 18px 24px;
+        border-bottom: 4px solid #FF6252;
+        border-radius: 10px;
         margin-bottom: 16px;
     }
     .header-bar .subtitle {
-        color: #FCD34D;
-        font-size: 10px;
+        color: #FBD206;
+        font-size: 11px;
         letter-spacing: 3px;
         text-transform: uppercase;
-        font-family: monospace;
+        font-weight: 500;
         margin-bottom: 3px;
     }
     .header-bar .title {
-        color: #FAFAF9;
-        font-size: 20px;
-        font-weight: bold;
-        font-family: Georgia, serif;
+        color: #FFFFFF;
+        font-size: 22px;
+        font-weight: 700;
     }
     /* Note cards */
     .note-card {
         background: #FFFFFF;
-        border-radius: 9px;
+        border-radius: 10px;
         padding: 14px 16px;
         margin-bottom: 12px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        box-shadow: 0 2px 8px rgba(63,76,76,0.08);
     }
     .note-label {
-        font-size: 13px;
-        font-weight: bold;
-        color: #1C1917;
-        font-family: Georgia, serif;
+        font-size: 14px;
+        font-weight: 600;
+        color: #242D2C;
     }
     .note-tag {
-        font-size: 9px;
-        padding: 2px 6px;
-        border-radius: 3px;
-        font-family: monospace;
-        font-weight: bold;
+        font-size: 10px;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-weight: 600;
     }
     .prompt-text {
-        font-size: 11px;
-        color: #A8A29E;
-        font-family: monospace;
+        font-size: 12px;
+        color: #A3AAA8;
+        font-weight: 400;
         margin-bottom: 6px;
     }
     .section-label {
-        font-size: 10px;
-        font-family: monospace;
-        font-weight: bold;
+        font-size: 11px;
+        font-weight: 500;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 1.5px;
         margin-bottom: 4px;
         margin-top: 10px;
     }
     .empty-state {
         text-align: center;
         padding: 60px 20px;
-        color: #A8A29E;
+        color: #A3AAA8;
     }
     .empty-state .icon { font-size: 36px; margin-bottom: 14px; }
-    .empty-state .msg { font-size: 15px; font-family: Georgia, serif; margin-bottom: 6px; }
-    .empty-state .hint { font-size: 12px; font-family: monospace; line-height: 1.6; }
+    .empty-state .msg { font-size: 16px; font-weight: 600; color: #3F4C4C; margin-bottom: 6px; }
+    .empty-state .hint { font-size: 13px; color: #A3AAA8; line-height: 1.7; }
     .summary-box {
-        background: #F5F5F4;
-        border-radius: 7px;
-        padding: 9px;
-        font-size: 11px;
-        font-family: monospace;
-        color: #78716C;
+        background: #EEF1F0;
+        border-radius: 8px;
+        padding: 10px;
+        font-size: 12px;
+        color: #3F4C4C;
         line-height: 1.6;
     }
-    /* Sidebar tweaks */
+    /* Sidebar */
     [data-testid="stSidebar"] {
-        background: #FAFAF9;
+        background: #EEF1F0;
     }
+    /* Buttons - Kiddom coral on hover */
+    .stButton button {
+        border-radius: 6px;
+        border: 1.5px solid #DCE2E1;
+        color: #3F4C4C;
+        font-weight: 500;
+        transition: all 0.15s;
+    }
+    .stButton button:hover {
+        border-color: #FF6252;
+        color: #FF6252;
+        background: #FFF;
+    }
+    /* Text inputs */
+    .stTextInput input, .stTextArea textarea {
+        border-radius: 6px;
+        border: 1.5px solid #DCE2E1;
+        color: #242D2C;
+    }
+    .stTextInput input:focus, .stTextArea textarea:focus {
+        border-color: #13B5EA;
+        box-shadow: 0 0 0 2px rgba(19,181,234,0.15);
+    }
+    /* Radio pills */
+    .stRadio > div { gap: 4px; }
     /* Hide default streamlit header/footer */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
-    /* Remove extra padding */
     .block-container { padding-top: 1rem; }
 </style>
 """, unsafe_allow_html=True)
@@ -103,7 +128,7 @@ st.markdown("""
 LEVELS = [
     {
         "id": "remember", "label": "Remember & Notice", "dok": "DOK 1",
-        "color": "#3B82F6", "bg": "#EFF6FF", "border": "#BFDBFE", "tagBg": "#DBEAFE",
+        "color": "#13B5EA", "bg": "#E8F7FD", "border": "#84DBEF", "tagBg": "#D0EFFA",
         "blocks": [
             {"id": "notice", "label": "I noticed...", "prompt": "What did you observe or see?"},
             {"id": "term", "label": "Key term:", "prompt": "Define the key vocabulary."},
@@ -113,7 +138,7 @@ LEVELS = [
     },
     {
         "id": "understand", "label": "Understand & Explain", "dok": "DOK 2",
-        "color": "#10B981", "bg": "#ECFDF5", "border": "#A7F3D0", "tagBg": "#D1FAE5",
+        "color": "#09B472", "bg": "#E6F9F0", "border": "#A3E8B8", "tagBg": "#D1F4DE",
         "blocks": [
             {"id": "means", "label": "This means...", "prompt": "What does this idea mean?"},
             {"id": "words", "label": "In my own words...", "prompt": "Explain it without the text."},
@@ -123,7 +148,7 @@ LEVELS = [
     },
     {
         "id": "analyze", "label": "Apply & Analyze", "dok": "DOK 3",
-        "color": "#F59E0B", "bg": "#FFFBEB", "border": "#FDE68A", "tagBg": "#FEF3C7",
+        "color": "#A18630", "bg": "#FFF9E6", "border": "#FBD206", "tagBg": "#FFF5BB",
         "blocks": [
             {"id": "connects", "label": "This connects to...", "prompt": "What prior knowledge or text does this link to?"},
             {"id": "pattern", "label": "The pattern I see is...", "prompt": "What repeats or structures the idea?"},
@@ -133,7 +158,7 @@ LEVELS = [
     },
     {
         "id": "evaluate", "label": "Evaluate & Synthesize", "dok": "DOK 4",
-        "color": "#8B5CF6", "bg": "#F5F3FF", "border": "#DDD6FE", "tagBg": "#EDE9FE",
+        "color": "#827AB9", "bg": "#F0EEF8", "border": "#C2BDF2", "tagBg": "#DDD8F5",
         "blocks": [
             {"id": "claim", "label": "My claim is...", "prompt": "What argument or position do you want to defend?"},
             {"id": "agree", "label": "I agree / disagree because...", "prompt": "Take a stance and explain your reasoning."},
@@ -144,8 +169,8 @@ LEVELS = [
 ]
 
 BANDS = {
-    "ms": {"color": "#0D9488", "bg": "#F0FDFA", "border": "#99F6E4", "tagBg": "#CCFBF1", "label": "Grades 6-8"},
-    "hs": {"color": "#6366F1", "bg": "#EEF2FF", "border": "#C7D2FE", "tagBg": "#E0E7FF", "label": "Grades 9-12"},
+    "ms": {"color": "#09B472", "bg": "#E6F9F0", "border": "#A3E8B8", "tagBg": "#D1F4DE", "label": "Grades 6-8"},
+    "hs": {"color": "#827AB9", "bg": "#F0EEF8", "border": "#C2BDF2", "tagBg": "#DDD8F5", "label": "Grades 9-12"},
 }
 
 ORGANIZER_TEMPLATES = [
@@ -251,7 +276,7 @@ def move_note(uid, direction):
 
 st.markdown("""
 <div class="header-bar">
-    <div class="subtitle">Digital Note Builder</div>
+    <div class="subtitle">Kiddom · Digital Note Builder</div>
     <div class="title">My Learning Notes</div>
 </div>
 """, unsafe_allow_html=True)
@@ -264,13 +289,14 @@ topic = st.text_input("Topic or reading title", key="topic_input", label_visibil
 # ──────────────────────────────────────────────
 
 with st.sidebar:
-    st.markdown("### 🎨 Palette")
+    st.markdown('<div style="font-size:16px;font-weight:700;color:#3F4C4C;margin-bottom:4px">Palette</div>',
+                unsafe_allow_html=True)
     mode = st.radio("Mode", ["Blocks", "Organizers"], horizontal=True, label_visibility="collapsed")
 
     if mode == "Blocks":
         st.markdown(
-            '<div style="color:#78716C;font-size:10px;letter-spacing:2px;'
-            'text-transform:uppercase;font-family:monospace;margin:8px 0 6px">Block Palette</div>',
+            '<div style="color:#3F4C4C;font-size:11px;letter-spacing:1.5px;'
+            'text-transform:uppercase;font-weight:500;margin:8px 0 6px">Block Palette</div>',
             unsafe_allow_html=True,
         )
         level_names = [f"{l['dok']} - {l['label']}" for l in LEVELS]
@@ -281,7 +307,7 @@ with st.sidebar:
 
         st.markdown(
             f'<div style="color:{active_level["color"]};font-size:10px;letter-spacing:1.5px;'
-            f'text-transform:uppercase;font-family:monospace;margin:12px 0 6px">Click to add</div>',
+            f'text-transform:uppercase;font-weight:600;margin:12px 0 6px">Click to add</div>',
             unsafe_allow_html=True,
         )
         for block in active_level["blocks"]:
@@ -299,7 +325,7 @@ with st.sidebar:
             templates = [t for t in ORGANIZER_TEMPLATES if t["band"] == band_key]
             st.markdown(
                 f'<div style="color:{band["color"]};font-size:10px;letter-spacing:1.5px;'
-                f'text-transform:uppercase;font-family:monospace;margin:12px 0 6px">{band["label"]}</div>',
+                f'text-transform:uppercase;font-weight:600;margin:12px 0 6px">{band["label"]}</div>',
                 unsafe_allow_html=True,
             )
             for tmpl in templates:
@@ -612,8 +638,8 @@ main_col, summary_col = st.columns([5, 1])
 with main_col:
     if topic:
         st.markdown(
-            f'<div style="font-size:12px;color:#78716C;font-family:monospace;margin-bottom:12px;'
-            f'padding-bottom:8px;border-bottom:1px dashed #D6D3D1;letter-spacing:1px">'
+            f'<div style="font-size:12px;color:#3F4C4C;font-weight:500;margin-bottom:12px;'
+            f'padding-bottom:8px;border-bottom:1px dashed #DCE2E1;letter-spacing:1px">'
             f'TOPIC: {topic.upper()}</div>',
             unsafe_allow_html=True,
         )
@@ -694,8 +720,8 @@ with main_col:
 
 with summary_col:
     st.markdown(
-        '<div style="font-size:10px;color:#78716C;letter-spacing:2px;text-transform:uppercase;'
-        'font-family:monospace;margin-bottom:10px">My Notes Map</div>',
+        '<div style="font-size:10px;color:#3F4C4C;letter-spacing:2px;text-transform:uppercase;'
+        'font-weight:600;margin-bottom:10px">My Notes Map</div>',
         unsafe_allow_html=True,
     )
 
@@ -706,10 +732,10 @@ with summary_col:
         st.markdown(
             f'<div style="margin-bottom:10px">'
             f'<div style="display:flex;justify-content:space-between;margin-bottom:2px">'
-            f'<span style="font-size:10px;color:#57534E;font-family:monospace">{level["dok"]}</span>'
-            f'<span style="font-size:10px;color:{level["color"]};font-weight:bold;font-family:monospace">{count}</span>'
+            f'<span style="font-size:10px;color:#3F4C4C;font-weight:500">{level["dok"]}</span>'
+            f'<span style="font-size:10px;color:{level["color"]};font-weight:700">{count}</span>'
             f'</div>'
-            f'<div style="height:5px;background:#E7E5E4;border-radius:3px;overflow:hidden">'
+            f'<div style="height:5px;background:#DCE2E1;border-radius:3px;overflow:hidden">'
             f'<div style="height:100%;width:{pct}%;background:{level["color"]};border-radius:3px;'
             f'transition:width 0.3s"></div></div></div>',
             unsafe_allow_html=True,
@@ -721,14 +747,14 @@ with summary_col:
     higher = len([n for n in notes if n.get("levelId") in ("evaluate", "analyze")])
     block_notes = [n for n in notes if n["type"] != "organizer"]
 
-    summary_html = f'<div class="summary-box"><div style="font-weight:bold;color:#1C1917;margin-bottom:5px">Total: {total} blocks</div>'
+    summary_html = f'<div class="summary-box"><div style="font-weight:bold;color:#3F4C4C;margin-bottom:5px">Total: {total} blocks</div>'
     if org_count > 0:
-        summary_html += f'<div style="color:#0D9488;margin-bottom:4px">📐 {org_count} organizer{"s" if org_count > 1 else ""}</div>'
+        summary_html += f'<div style="color:#09B472;margin-bottom:4px">📐 {org_count} organizer{"s" if org_count > 1 else ""}</div>'
     if total > 0 and higher == 0 and block_notes:
-        summary_html += '<div style="color:#D97706">💡 Try an analysis or evaluation block!</div>'
+        summary_html += '<div style="color:#A18630">💡 Try an analysis or evaluation block!</div>'
     if higher > 0:
-        summary_html += '<div style="color:#10B981">✓ Strong higher-order thinking!</div>'
+        summary_html += '<div style="color:#09B472">✓ Strong higher-order thinking!</div>'
     if total >= 5:
-        summary_html += '<div style="color:#3B82F6;margin-top:4px">📚 Solid note set!</div>'
+        summary_html += '<div style="color:#13B5EA;margin-top:4px">📚 Solid note set!</div>'
     summary_html += "</div>"
     st.markdown(summary_html, unsafe_allow_html=True)
