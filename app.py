@@ -129,10 +129,11 @@ st.markdown("""
     }
     /* Radio pills */
     .stRadio > div { gap: 4px; }
-    /* Hide default streamlit header/footer */
+    /* Hide default streamlit header/footer but keep sidebar toggle */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
+    [data-testid="collapsedControl"] {visibility: visible;}
     .block-container { padding-top: 1rem; }
 </style>
 """, unsafe_allow_html=True)
