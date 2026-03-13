@@ -3,7 +3,8 @@ from streamlit_drawable_canvas import st_canvas
 import json
 
 # ─── Page config ───
-st.set_page_config(page_title="Digital Note Builder", page_icon="📓", layout="wide")
+st.set_page_config(page_title="Digital Note Builder", page_icon="📓", layout="wide",
+                   initial_sidebar_state="expanded")
 
 # ─── Custom CSS (Kiddom brand) ───
 st.markdown("""
@@ -129,11 +130,17 @@ st.markdown("""
     }
     /* Radio pills */
     .stRadio > div { gap: 4px; }
-    /* Hide default streamlit header/footer but keep sidebar toggle */
+    /* Hide default streamlit chrome but keep sidebar toggle clickable */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
-    [data-testid="collapsedControl"] {visibility: visible;}
+    [data-testid="collapsedControl"] {
+        visibility: visible !important;
+        position: fixed;
+        top: 0.375rem;
+        left: 0.375rem;
+        z-index: 999999;
+    }
     .block-container { padding-top: 1rem; }
 </style>
 """, unsafe_allow_html=True)
