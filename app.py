@@ -1,6 +1,5 @@
 import streamlit as st
 from streamlit_drawable_canvas import st_canvas
-import json
 
 # ─── Page config ───
 st.set_page_config(page_title="Digital Note Builder", page_icon="📓", layout="wide",
@@ -130,6 +129,30 @@ st.markdown("""
     }
     /* Radio pills */
     .stRadio > div { gap: 4px; }
+    /* Tabs - Kiddom brand */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 2px;
+        background: #EEF1F0;
+        border-radius: 8px;
+        padding: 4px;
+    }
+    .stTabs [data-baseweb="tab"] {
+        font-family: 'Lexend', sans-serif !important;
+        font-size: 13px;
+        font-weight: 500;
+        color: #3F4C4C;
+        border-radius: 6px;
+        padding: 8px 16px;
+    }
+    .stTabs [aria-selected="true"] {
+        background: #FFFFFF !important;
+        color: #FF6252 !important;
+        font-weight: 600;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    .stTabs [data-baseweb="tab-highlight"] {
+        background-color: #FF6252 !important;
+    }
     /* Hide default streamlit chrome */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
@@ -285,76 +308,6 @@ def move_note(uid, direction):
         return
     notes[idx], notes[swap] = notes[swap], notes[idx]
 
-
-# ──────────────────────────────────────────────
-# HEADER
-# ──────────────────────────────────────────────
-
-st.markdown("""
-<div class="header-bar">
-    <div class="subtitle">Kiddom · Digital Note Builder</div>
-    <div class="title">My Learning Notes</div>
-</div>
-""", unsafe_allow_html=True)
-
-with st.container():
-    st.markdown('<div class="topic-bar">', unsafe_allow_html=True)
-    topic = st.text_input("Topic or reading title", key="topic_input", label_visibility="collapsed",
-                           placeholder="🔍  Topic or reading title...")
-    st.markdown('</div>', unsafe_allow_html=True)
-
-# ──────────────────────────────────────────────
-# SIDEBAR
-# ──────────────────────────────────────────────
-
-with st.sidebar:
-    st.markdown('<div style="font-size:16px;font-weight:700;color:#3F4C4C;margin-bottom:4px">Palette</div>',
-                unsafe_allow_html=True)
-    mode = st.radio("Mode", ["Blocks", "Organizers"], horizontal=True, label_visibility="collapsed")
-
-    if mode == "Blocks":
-        st.markdown(
-            '<div style="color:#3F4C4C;font-size:11px;letter-spacing:1.5px;'
-            'text-transform:uppercase;font-weight:500;margin:8px 0 6px">Block Palette</div>',
-            unsafe_allow_html=True,
-        )
-        level_names = [f"{l['dok']} - {l['label']}" for l in LEVELS]
-        active_idx = st.radio("DOK Level", range(len(LEVELS)),
-                              format_func=lambda i: level_names[i],
-                              label_visibility="collapsed")
-        active_level = LEVELS[active_idx]
-
-        st.markdown(
-            f'<div style="color:{active_level["color"]};font-size:10px;letter-spacing:1.5px;'
-            f'text-transform:uppercase;font-weight:600;margin:12px 0 6px">Click to add</div>',
-            unsafe_allow_html=True,
-        )
-        for block in active_level["blocks"]:
-            if st.button(
-                f'{block["label"]}',
-                key=f'add_block_{active_level["id"]}_{block["id"]}',
-                use_container_width=True,
-            ):
-                add_block(block, active_level)
-                st.rerun()
-
-    else:  # Organizers
-        for band_key in ["ms", "hs"]:
-            band = BANDS[band_key]
-            templates = [t for t in ORGANIZER_TEMPLATES if t["band"] == band_key]
-            st.markdown(
-                f'<div style="color:{band["color"]};font-size:10px;letter-spacing:1.5px;'
-                f'text-transform:uppercase;font-weight:600;margin:12px 0 6px">{band["label"]}</div>',
-                unsafe_allow_html=True,
-            )
-            for tmpl in templates:
-                if st.button(
-                    f'{tmpl["icon"]}  {tmpl["label"]}',
-                    key=f'add_org_{tmpl["id"]}',
-                    use_container_width=True,
-                ):
-                    add_organizer(tmpl["id"])
-                    st.rerun()
 
 # ──────────────────────────────────────────────
 # ORGANIZER RENDERERS
@@ -543,7 +496,6 @@ def render_argument(note, idx):
 def render_matrix(note, idx):
     d = note["organizerData"]
     # Criteria headers
-    header_cols = [st.columns([2] + [3] * len(d["criteria"]) + [1])]
     hc = st.columns([2] + [3] * len(d["criteria"]) + [1])
     with hc[0]:
         st.caption("Source")
@@ -648,132 +600,454 @@ ORGANIZER_RENDERERS = {
     "timeline": render_timeline,
 }
 
+
 # ──────────────────────────────────────────────
-# MAIN CANVAS + SUMMARY
+# CURRICULUM LESSON DATA
 # ──────────────────────────────────────────────
 
-main_col, summary_col = st.columns([5, 1])
+EL_G3_LESSON = {
+    "title": "Discover Our Topic: The Power of Reading",
+    "subtitle": "EL Education \u00b7 Grade 3 \u00b7 Module 1, Unit 1, Lesson 1",
+    "targets": [
+        "I can infer the topic of this module from texts and images.",
+        "I can discuss my predictions about the module using verbs in the future tense.",
+    ],
+    "blocks": [
+        {
+            "label": "I Notice / I Wonder",
+            "prompt": "Look at the images and texts. What do you notice? What do you wonder?",
+            "level": 0,
+            "time": "Opening A \u00b7 20 min",
+        },
+        {
+            "label": "Build Background Language",
+            "prompt": "What new words or phrases connect to our topic? What do they mean?",
+            "level": 1,
+            "time": "Work Time A \u00b7 10 min",
+        },
+        {
+            "label": "Module Predictions",
+            "prompt": "What do you think this module will be about? Use future tense verbs to explain your predictions.",
+            "level": 2,
+            "time": "Work Time B \u00b7 20 min",
+        },
+        {
+            "label": "Guiding Questions",
+            "prompt": "What are the big questions we will explore? What will we create by the end of this module?",
+            "level": 3,
+            "time": "Closing A \u00b7 10 min",
+        },
+    ],
+}
 
-with main_col:
-    if topic:
-        st.markdown(
-            f'<div style="font-size:12px;color:#3F4C4C;font-weight:500;margin-bottom:12px;'
-            f'padding-bottom:8px;border-bottom:1px dashed #DCE2E1;letter-spacing:1px">'
-            f'TOPIC: {topic.upper()}</div>',
-            unsafe_allow_html=True,
-        )
+MATH_G7_LESSON = {
+    "title": "What Are Scaled Copies?",
+    "subtitle": "IM v360 Math \u00b7 Grade 7 \u00b7 Unit 1, Lesson 1",
+    "targets": [
+        "I can describe some characteristics of a scaled copy.",
+        "I can tell whether or not a figure is a scaled copy of another figure.",
+    ],
+    "blocks": [
+        {
+            "label": "Warm-up: Printing Portraits",
+            "prompt": "What happens when you print a photo at different sizes? Which versions look right and which look distorted?",
+            "level": 0,
+            "time": "Warm-up \u00b7 10 min",
+            "organizer": "tchart",
+            "organizerData": {
+                "leftHeader": "Looks Right (Scaled Copy)",
+                "rightHeader": "Looks Distorted (Not Scaled)",
+                "rows": [{"left": "", "right": ""}],
+            },
+        },
+        {
+            "label": "Scaling F",
+            "prompt": "Draw scaled copies of the letter F. What stays the same? What changes?",
+            "level": 1,
+            "time": "Activity 2 \u00b7 10 min",
+        },
+        {
+            "label": "Pairs of Scaled Polygons",
+            "prompt": "Compare each pair of polygons. Which are scaled copies? What evidence supports your answer?",
+            "level": 2,
+            "time": "Activity 3 \u00b7 15 min",
+            "organizer": "venn",
+            "organizerData": {
+                "leftLabel": "Scaled Copy",
+                "rightLabel": "Not a Scaled Copy",
+                "leftOnly": "",
+                "overlap": "",
+                "rightOnly": "",
+            },
+        },
+        {
+            "label": "Lesson Synthesis",
+            "prompt": "What makes a figure a scaled copy? What characteristics define scaled copies?",
+            "level": 3,
+            "time": "Synthesis \u00b7 5 min",
+        },
+        {
+            "label": "Cool-down: Scaling L",
+            "prompt": "Is the figure a scaled copy? Explain your reasoning using what you learned.",
+            "level": 2,
+            "time": "Cool-down \u00b7 5 min",
+        },
+    ],
+}
 
-    if not st.session_state.notes:
-        st.markdown("""
-        <div class="empty-state">
-            <div class="icon">📓</div>
-            <div class="msg">Your notebook is empty</div>
-            <div class="hint">Choose blocks or graphic organizers from the palette on the left to start building your notes.</div>
-        </div>
-        """, unsafe_allow_html=True)
-    else:
-        for idx, note in enumerate(st.session_state.notes):
-            border_color = note["color"]
-            tag_text = note.get("bandLabel", note.get("levelLabel", ""))
-            icon = note.get("icon", "")
+SCI_BIO_LESSON = {
+    "title": "Why do ecosystems need protection, and how are they protected?",
+    "subtitle": "OpenSciEd Biology \u00b7 Unit 1, Lesson 1",
+    "targets": [
+        "I can describe an anchoring phenomenon related to ecosystem protection.",
+        "I can generate questions about why and how ecosystems are protected.",
+    ],
+    "blocks": [
+        {
+            "label": "Anchoring Phenomenon",
+            "prompt": "What do you observe about the ecosystem? What patterns or changes do you notice?",
+            "level": 0,
+            "time": "Anchoring Phenomenon",
+            "organizer": "kwl",
+            "organizerData": {
+                "know": [""],
+                "want": [""],
+                "learned": [""],
+            },
+        },
+        {
+            "label": "What We Will Figure Out",
+            "prompt": "What questions do we need to investigate? What do we need to figure out about ecosystems?",
+            "level": 1,
+            "time": "Building Understanding",
+            "organizer": "mindmap",
+            "organizerData": {
+                "center": "Ecosystem Protection",
+                "branches": ["Why protect?", "What threatens?", "How to protect?"],
+            },
+        },
+        {
+            "label": "Investigation Notes",
+            "prompt": "What evidence supports your thinking? What data or observations are important?",
+            "level": 2,
+            "time": "Investigation",
+            "organizer": "cornell",
+            "organizerData": {
+                "cues": ["What changes did you observe?", "What caused those changes?"],
+                "notes": "",
+                "summary": "",
+            },
+        },
+        {
+            "label": "Ecosystem Protection Claim",
+            "prompt": "Why do ecosystems need protection? What claim can you make based on the evidence?",
+            "level": 3,
+            "time": "Sensemaking",
+            "organizer": "argument",
+            "organizerData": {
+                "claim": "",
+                "evidence": [{"point": "", "reasoning": ""}],
+                "counterargument": "",
+            },
+        },
+    ],
+}
 
-            with st.container():
-                st.markdown(
-                    f'<div style="border-left:5px solid {border_color};border:1.5px solid {note["border"]};'
-                    f'border-left:5px solid {border_color};border-radius:9px;padding:4px 0 0 0;'
-                    f'margin-bottom:4px;background:#FFFFFF;box-shadow:0 2px 8px rgba(0,0,0,0.05)">'
-                    f'<div style="padding:6px 12px 0;display:flex;align-items:center;gap:7px">'
-                    f'{f"<span style=font-size:15px>{icon}</span>" if icon else ""}'
-                    f'<span class="note-label">{note["label"]}</span>'
-                    f'<span class="note-tag" style="background:{note["tagBg"]};color:{border_color}">{tag_text}</span>'
-                    f'</div></div>',
-                    unsafe_allow_html=True,
-                )
 
-                # Controls row
-                ctrl_cols = st.columns([1, 1, 1, 8])
-                with ctrl_cols[0]:
-                    if idx > 0 and st.button("↑", key=f"mv_up_{note['uid']}"):
-                        move_note(note["uid"], -1)
-                        st.rerun()
-                with ctrl_cols[1]:
-                    if idx < len(st.session_state.notes) - 1 and st.button("↓", key=f"mv_dn_{note['uid']}"):
-                        move_note(note["uid"], 1)
-                        st.rerun()
-                with ctrl_cols[2]:
-                    if st.button("✕", key=f"rm_{note['uid']}"):
-                        remove_note(note["uid"])
-                        st.rerun()
-
-                # Content
-                if note["type"] == "organizer":
-                    renderer = ORGANIZER_RENDERERS.get(note["organizerId"])
-                    if renderer:
-                        renderer(note, idx)
-                else:
-                    st.markdown(f'<div class="prompt-text">{note["prompt"]}</div>', unsafe_allow_html=True)
-                    note["text"] = st.text_area(
-                        "Note text", note["text"],
-                        key=f"block_text_{note['uid']}",
-                        height=80, label_visibility="collapsed",
-                        placeholder="Write here...",
-                    )
-                    # Drawing toggle
-                    draw_key = f"draw_toggle_{note['uid']}"
-                    if st.checkbox("✏️ Add sketch", value=note.get("drawing", False), key=draw_key):
-                        note["drawing"] = True
-                        canvas_result = st_canvas(
-                            fill_color="rgba(255, 255, 255, 1)",
-                            stroke_width=3,
-                            stroke_color=note["color"],
-                            background_color="#FFFFFF",
-                            width=600,
-                            height=160,
-                            drawing_mode="freedraw",
-                            key=f"canvas_{note['uid']}",
-                        )
-                    else:
-                        note["drawing"] = False
-
-                st.markdown("---")
-
-with summary_col:
+def render_curriculum_tab(lesson, tab_key):
+    """Render a pre-populated curriculum note catcher."""
+    # Lesson header
     st.markdown(
-        '<div style="font-size:10px;color:#3F4C4C;letter-spacing:2px;text-transform:uppercase;'
-        'font-weight:600;margin-bottom:10px">My Notes Map</div>',
+        f'<div style="margin-bottom:16px">'
+        f'<div style="color:#FF6252;font-size:11px;letter-spacing:2px;text-transform:uppercase;'
+        f'font-weight:600;margin-bottom:4px">{lesson["subtitle"]}</div>'
+        f'<div style="color:#3F4C4C;font-size:20px;font-weight:700;margin-bottom:8px">'
+        f'{lesson["title"]}</div></div>',
         unsafe_allow_html=True,
     )
 
-    notes = st.session_state.notes
-    for level in LEVELS:
-        count = len([n for n in notes if n.get("levelId") == level["id"]])
-        pct = (count / len(notes) * 100) if notes else 0
+    # Learning targets
+    targets_html = "".join(
+        f'<li style="margin-bottom:4px">{t}</li>' for t in lesson["targets"]
+    )
+    st.markdown(
+        f'<div style="background:#EEF1F0;border-radius:8px;padding:12px 16px;margin-bottom:16px">'
+        f'<div style="font-size:11px;color:#3F4C4C;font-weight:600;letter-spacing:1.5px;'
+        f'text-transform:uppercase;margin-bottom:6px">Learning Targets</div>'
+        f'<ul style="font-size:13px;color:#3F4C4C;margin:0;padding-left:18px">{targets_html}</ul>'
+        f'</div>',
+        unsafe_allow_html=True,
+    )
+
+    # Note blocks and organizers
+    for i, block in enumerate(lesson["blocks"]):
+        level = LEVELS[block["level"]]
+        org_id = block.get("organizer")
+        org_label = ""
+        if org_id:
+            tmpl = next((t for t in ORGANIZER_TEMPLATES if t["id"] == org_id), None)
+            if tmpl:
+                org_label = (
+                    f'<span style="font-size:10px;padding:2px 6px;border-radius:4px;'
+                    f'background:#EEF1F0;color:#3F4C4C;font-weight:500">'
+                    f'{tmpl["icon"]} {tmpl["label"]}</span>'
+                )
         st.markdown(
-            f'<div style="margin-bottom:10px">'
-            f'<div style="display:flex;justify-content:space-between;margin-bottom:2px">'
-            f'<span style="font-size:10px;color:#3F4C4C;font-weight:500">{level["dok"]}</span>'
-            f'<span style="font-size:10px;color:{level["color"]};font-weight:700">{count}</span>'
-            f'</div>'
-            f'<div style="height:5px;background:#DCE2E1;border-radius:3px;overflow:hidden">'
-            f'<div style="height:100%;width:{pct}%;background:{level["color"]};border-radius:3px;'
-            f'transition:width 0.3s"></div></div></div>',
+            f'<div style="border-left:5px solid {level["color"]};border:1.5px solid {level["border"]};'
+            f'border-left:5px solid {level["color"]};border-radius:9px;padding:4px 0 0 0;'
+            f'margin-bottom:4px;background:#FFFFFF;box-shadow:0 2px 8px rgba(0,0,0,0.05)">'
+            f'<div style="padding:6px 12px 0;display:flex;align-items:center;gap:7px;flex-wrap:wrap">'
+            f'<span class="note-label">{block["label"]}</span>'
+            f'<span class="note-tag" style="background:{level["tagBg"]};color:{level["color"]}">'
+            f'{level["dok"]}</span>'
+            f'{org_label}'
+            f'<span style="font-size:10px;color:#A3AAA8;margin-left:auto">{block["time"]}</span>'
+            f'</div></div>',
+            unsafe_allow_html=True,
+        )
+        st.markdown(
+            f'<div class="prompt-text">{block["prompt"]}</div>', unsafe_allow_html=True
+        )
+
+        # Render organizer or plain text block
+        if org_id and org_id in ORGANIZER_RENDERERS:
+            # Build a note-like dict the renderer expects
+            ss_key = f"{tab_key}_org_{i}"
+            if ss_key not in st.session_state:
+                st.session_state[ss_key] = {
+                    "uid": ss_key,
+                    "organizerData": block["organizerData"],
+                }
+            ORGANIZER_RENDERERS[org_id](st.session_state[ss_key], i)
+        else:
+            st.text_area(
+                block["label"],
+                key=f"{tab_key}_text_{i}",
+                height=100,
+                label_visibility="collapsed",
+                placeholder="Write your notes here...",
+            )
+        st.markdown("---")
+
+
+# ──────────────────────────────────────────────
+# HEADER
+# ──────────────────────────────────────────────
+
+st.markdown("""
+<div class="header-bar">
+    <div class="subtitle">Kiddom</div>
+    <div class="title">Digital Note Builder</div>
+</div>
+""", unsafe_allow_html=True)
+
+# ──────────────────────────────────────────────
+# TABS
+# ──────────────────────────────────────────────
+
+tab_builder, tab_el, tab_math, tab_sci = st.tabs([
+    "Digital Note Builder",
+    "EL Grade 3 Note Catcher",
+    "Math Grade 7 Note Catcher",
+    "Science Biology Note Catcher",
+])
+
+# ─── Tab 1: Generic Note Builder ───
+with tab_builder:
+    with st.container():
+        st.markdown('<div class="topic-bar">', unsafe_allow_html=True)
+        topic = st.text_input("Topic or reading title", key="topic_input",
+                               label_visibility="collapsed",
+                               placeholder="🔍  Topic or reading title...")
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    main_col, summary_col = st.columns([5, 1])
+
+    with main_col:
+        if topic:
+            st.markdown(
+                f'<div style="font-size:12px;color:#3F4C4C;font-weight:500;margin-bottom:12px;'
+                f'padding-bottom:8px;border-bottom:1px dashed #DCE2E1;letter-spacing:1px">'
+                f'TOPIC: {topic.upper()}</div>',
+                unsafe_allow_html=True,
+            )
+
+        if not st.session_state.notes:
+            st.markdown("""
+            <div class="empty-state">
+                <div class="icon">📓</div>
+                <div class="msg">Your notebook is empty</div>
+                <div class="hint">Choose blocks or graphic organizers from the palette on the left to start building your notes.</div>
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            for idx, note in enumerate(st.session_state.notes):
+                border_color = note["color"]
+                tag_text = note.get("bandLabel", note.get("levelLabel", ""))
+                icon = note.get("icon", "")
+
+                with st.container():
+                    st.markdown(
+                        f'<div style="border-left:5px solid {border_color};border:1.5px solid {note["border"]};'
+                        f'border-left:5px solid {border_color};border-radius:9px;padding:4px 0 0 0;'
+                        f'margin-bottom:4px;background:#FFFFFF;box-shadow:0 2px 8px rgba(0,0,0,0.05)">'
+                        f'<div style="padding:6px 12px 0;display:flex;align-items:center;gap:7px">'
+                        f'{f"<span style=font-size:15px>{icon}</span>" if icon else ""}'
+                        f'<span class="note-label">{note["label"]}</span>'
+                        f'<span class="note-tag" style="background:{note["tagBg"]};color:{border_color}">{tag_text}</span>'
+                        f'</div></div>',
+                        unsafe_allow_html=True,
+                    )
+
+                    # Controls row
+                    ctrl_cols = st.columns([1, 1, 1, 8])
+                    with ctrl_cols[0]:
+                        if idx > 0 and st.button("↑", key=f"mv_up_{note['uid']}"):
+                            move_note(note["uid"], -1)
+                            st.rerun()
+                    with ctrl_cols[1]:
+                        if idx < len(st.session_state.notes) - 1 and st.button("↓", key=f"mv_dn_{note['uid']}"):
+                            move_note(note["uid"], 1)
+                            st.rerun()
+                    with ctrl_cols[2]:
+                        if st.button("✕", key=f"rm_{note['uid']}"):
+                            remove_note(note["uid"])
+                            st.rerun()
+
+                    # Content
+                    if note["type"] == "organizer":
+                        renderer = ORGANIZER_RENDERERS.get(note["organizerId"])
+                        if renderer:
+                            renderer(note, idx)
+                    else:
+                        st.markdown(f'<div class="prompt-text">{note["prompt"]}</div>', unsafe_allow_html=True)
+                        note["text"] = st.text_area(
+                            "Note text", note["text"],
+                            key=f"block_text_{note['uid']}",
+                            height=80, label_visibility="collapsed",
+                            placeholder="Write here...",
+                        )
+                        # Drawing toggle
+                        draw_key = f"draw_toggle_{note['uid']}"
+                        if st.checkbox("✏️ Add sketch", value=note.get("drawing", False), key=draw_key):
+                            note["drawing"] = True
+                            canvas_result = st_canvas(
+                                fill_color="rgba(255, 255, 255, 1)",
+                                stroke_width=3,
+                                stroke_color=note["color"],
+                                background_color="#FFFFFF",
+                                width=600,
+                                height=160,
+                                drawing_mode="freedraw",
+                                key=f"canvas_{note['uid']}",
+                            )
+                        else:
+                            note["drawing"] = False
+
+                    st.markdown("---")
+
+    with summary_col:
+        st.markdown(
+            '<div style="font-size:10px;color:#3F4C4C;letter-spacing:2px;text-transform:uppercase;'
+            'font-weight:600;margin-bottom:10px">My Notes Map</div>',
             unsafe_allow_html=True,
         )
 
-    # Summary box
-    total = len(notes)
-    org_count = len([n for n in notes if n["type"] == "organizer"])
-    higher = len([n for n in notes if n.get("levelId") in ("evaluate", "analyze")])
-    block_notes = [n for n in notes if n["type"] != "organizer"]
+        notes = st.session_state.notes
+        for level in LEVELS:
+            count = len([n for n in notes if n.get("levelId") == level["id"]])
+            pct = (count / len(notes) * 100) if notes else 0
+            st.markdown(
+                f'<div style="margin-bottom:10px">'
+                f'<div style="display:flex;justify-content:space-between;margin-bottom:2px">'
+                f'<span style="font-size:10px;color:#3F4C4C;font-weight:500">{level["dok"]}</span>'
+                f'<span style="font-size:10px;color:{level["color"]};font-weight:700">{count}</span>'
+                f'</div>'
+                f'<div style="height:5px;background:#DCE2E1;border-radius:3px;overflow:hidden">'
+                f'<div style="height:100%;width:{pct}%;background:{level["color"]};border-radius:3px;'
+                f'transition:width 0.3s"></div></div></div>',
+                unsafe_allow_html=True,
+            )
 
-    summary_html = f'<div class="summary-box"><div style="font-weight:bold;color:#3F4C4C;margin-bottom:5px">Total: {total} blocks</div>'
-    if org_count > 0:
-        summary_html += f'<div style="color:#09B472;margin-bottom:4px">📐 {org_count} organizer{"s" if org_count > 1 else ""}</div>'
-    if total > 0 and higher == 0 and block_notes:
-        summary_html += '<div style="color:#A18630">💡 Try an analysis or evaluation block!</div>'
-    if higher > 0:
-        summary_html += '<div style="color:#09B472">✓ Strong higher-order thinking!</div>'
-    if total >= 5:
-        summary_html += '<div style="color:#13B5EA;margin-top:4px">📚 Solid note set!</div>'
-    summary_html += "</div>"
-    st.markdown(summary_html, unsafe_allow_html=True)
+        # Summary box
+        total = len(notes)
+        org_count = len([n for n in notes if n["type"] == "organizer"])
+        higher = len([n for n in notes if n.get("levelId") in ("evaluate", "analyze")])
+        block_notes = [n for n in notes if n["type"] != "organizer"]
+
+        summary_html = f'<div class="summary-box"><div style="font-weight:bold;color:#3F4C4C;margin-bottom:5px">Total: {total} blocks</div>'
+        if org_count > 0:
+            summary_html += f'<div style="color:#09B472;margin-bottom:4px">📐 {org_count} organizer{"s" if org_count > 1 else ""}</div>'
+        if total > 0 and higher == 0 and block_notes:
+            summary_html += '<div style="color:#A18630">💡 Try an analysis or evaluation block!</div>'
+        if higher > 0:
+            summary_html += '<div style="color:#09B472">✓ Strong higher-order thinking!</div>'
+        if total >= 5:
+            summary_html += '<div style="color:#13B5EA;margin-top:4px">📚 Solid note set!</div>'
+        summary_html += "</div>"
+        st.markdown(summary_html, unsafe_allow_html=True)
+
+# ─── Tab 2: EL Grade 3 Note Catcher ───
+with tab_el:
+    render_curriculum_tab(EL_G3_LESSON, "el_g3")
+
+# ─── Tab 3: Math Grade 7 Note Catcher ───
+with tab_math:
+    render_curriculum_tab(MATH_G7_LESSON, "math_g7")
+
+# ─── Tab 4: Science Biology Note Catcher ───
+with tab_sci:
+    render_curriculum_tab(SCI_BIO_LESSON, "sci_bio")
+
+# ──────────────────────────────────────────────
+# SIDEBAR (Palette for Digital Note Builder)
+# ──────────────────────────────────────────────
+
+with st.sidebar:
+    st.markdown('<div style="font-size:16px;font-weight:700;color:#3F4C4C;margin-bottom:4px">Palette</div>',
+                unsafe_allow_html=True)
+    mode = st.radio("Mode", ["Blocks", "Organizers"], horizontal=True, label_visibility="collapsed")
+
+    if mode == "Blocks":
+        st.markdown(
+            '<div style="color:#3F4C4C;font-size:11px;letter-spacing:1.5px;'
+            'text-transform:uppercase;font-weight:500;margin:8px 0 6px">Block Palette</div>',
+            unsafe_allow_html=True,
+        )
+        level_names = [f"{l['dok']} - {l['label']}" for l in LEVELS]
+        active_idx = st.radio("DOK Level", range(len(LEVELS)),
+                              format_func=lambda i: level_names[i],
+                              label_visibility="collapsed")
+        active_level = LEVELS[active_idx]
+
+        st.markdown(
+            f'<div style="color:{active_level["color"]};font-size:10px;letter-spacing:1.5px;'
+            f'text-transform:uppercase;font-weight:600;margin:12px 0 6px">Click to add</div>',
+            unsafe_allow_html=True,
+        )
+        for block in active_level["blocks"]:
+            if st.button(
+                f'{block["label"]}',
+                key=f'add_block_{active_level["id"]}_{block["id"]}',
+                use_container_width=True,
+            ):
+                add_block(block, active_level)
+                st.rerun()
+
+    else:  # Organizers
+        for band_key in ["ms", "hs"]:
+            band = BANDS[band_key]
+            templates = [t for t in ORGANIZER_TEMPLATES if t["band"] == band_key]
+            st.markdown(
+                f'<div style="color:{band["color"]};font-size:10px;letter-spacing:1.5px;'
+                f'text-transform:uppercase;font-weight:600;margin:12px 0 6px">{band["label"]}</div>',
+                unsafe_allow_html=True,
+            )
+            for tmpl in templates:
+                if st.button(
+                    f'{tmpl["icon"]}  {tmpl["label"]}',
+                    key=f'add_org_{tmpl["id"]}',
+                    use_container_width=True,
+                ):
+                    add_organizer(tmpl["id"])
+                    st.rerun()
