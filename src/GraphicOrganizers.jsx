@@ -403,9 +403,9 @@ const COMPONENTS = {
   timeline: Timeline,
 };
 
-export default function OrganizerRenderer({ type, data, onChange }) {
+export default function OrganizerRenderer({ type, data, onChange, colorOverride }) {
   const tmpl = ORGANIZER_TEMPLATES.find((t) => t.id === type);
-  const band = tmpl ? BANDS[tmpl.band] : BANDS.ms;
+  const band = colorOverride || (tmpl ? BANDS[tmpl.band] : BANDS.ms);
   const Comp = COMPONENTS[type];
   if (!Comp) return <div style={{ color: "#7A8B8B", fontSize: 12 }}>Unknown organizer type</div>;
   return <Comp data={data} onChange={onChange} band={band} />;

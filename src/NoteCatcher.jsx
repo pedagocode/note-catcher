@@ -222,12 +222,12 @@ export default function NoteCatcher({ lesson, gradeBand = "ms" }) {
   function addOrganizer(templateId) {
     const tmpl = ORGANIZER_TEMPLATES.find((t) => t.id === templateId);
     if (!tmpl) return;
-    const band = BANDS[tmpl.band];
+    const level = LEVELS.find((l) => l.id === activeLevel);
     setNotes((prev) => [...prev, {
       type: "organizer", organizerId: templateId, uid: uid(),
       label: tmpl.label, icon: tmpl.icon,
-      color: band.color, bg: band.bg, border: band.border, tagBg: band.tagBg,
-      bandLabel: band.label,
+      color: level.color, bg: level.bg, border: level.border, tagBg: level.tagBg,
+      levelId: level.id, levelLabel: level.label,
       organizerData: getDefaultData(templateId),
     }]);
   }
@@ -533,7 +533,7 @@ export default function NoteCatcher({ lesson, gradeBand = "ms" }) {
                         borderRadius: 3,
                         fontFamily: "'Lexend', sans-serif",
                         fontWeight: "bold",
-                      }}>{note.type === "organizer" ? note.bandLabel : note.levelLabel}</span>
+                      }}>{note.levelLabel}</span>
                       {note.time && (
                         <span style={{
                           fontSize: 9, color: "#7A8B8B", background: "#EEF1F0",
@@ -553,6 +553,7 @@ export default function NoteCatcher({ lesson, gradeBand = "ms" }) {
                       type={note.organizerId}
                       data={note.organizerData}
                       onChange={(newData) => updateOrganizerData(note.uid, newData)}
+                      colorOverride={{ color: note.color, bg: note.bg, border: note.border, tagBg: note.tagBg }}
                     />
                   ) : (
                     /* ── Standard Block Note ── */
