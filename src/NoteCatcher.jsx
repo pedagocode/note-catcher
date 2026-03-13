@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import OrganizerRenderer, { ORGANIZER_TEMPLATES, BANDS, getDefaultData } from "./GraphicOrganizers";
+import { buildLessonNotes } from "./lessons";
 const LEVELS = [
   {
     id: "remember",
@@ -210,9 +211,9 @@ function DoodlePad({ noteUid, color, bg, onDataChange, initialData }) {
 
 let idCounter = 0;
 function uid() { return ++idCounter; }
-export default function NoteCatcher() {
+export default function NoteCatcher({ lesson, gradeBand = "ms" }) {
   const [topic, setTopic] = useState("");
-  const [notes, setNotes] = useState([]);
+  const [notes, setNotes] = useState(() => lesson ? buildLessonNotes(lesson) : []);
   const [activeLevel, setActiveLevel] = useState("remember");
   const [sidebarMode, setSidebarMode] = useState("blocks"); // "blocks" | "organizers"
   function addBlock(block) {
@@ -260,7 +261,7 @@ export default function NoteCatcher() {
   return (
     <div style={{
       fontFamily: "'Lexend', sans-serif",
-      height: "100vh",
+      height: "100%",
       background: "#F4F7F6",
       display: "flex",
       flexDirection: "column",
@@ -269,27 +270,49 @@ export default function NoteCatcher() {
       {/* Header */}
       <div style={{
         background: "#FFFFFF",
-        padding: "16px 24px",
+        padding: lesson ? "12px 24px" : "16px 24px",
         display: "flex",
-        alignItems: "center",
+        alignItems: lesson ? "flex-start" : "center",
         gap: 16,
         borderBottom: "3px solid #FF6252",
         flexShrink: 0,
       }}>
-        <div>
-          <div style={{ color: "#FF6252", fontSize: 10, letterSpacing: 3, textTransform: "uppercase", fontFamily: "'Lexend', sans-serif", fontWeight: 600, marginBottom: 3 }}>
-            Digital Note Builder
-          </div>
-          <div style={{ color: "#3F4C4C", fontSize: 18, fontWeight: "bold" }}>
-            My Learning Notes
-          </div>
+        <div style={{ flex: 1 }}>
+          {lesson ? (
+            <>
+              <div style={{ color: "#7A8B8B", fontSize: 10, letterSpacing: 1, fontFamily: "'Lexend', sans-serif", marginBottom: 2 }}>
+                {lesson.subtitle}
+              </div>
+              <div style={{ color: "#3F4C4C", fontSize: 16, fontWeight: "bold", marginBottom: 6 }}>
+                {lesson.title}
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                {lesson.targets.map((t, i) => (
+                  <div key={i} style={{
+                    fontSize: 10, color: "#3F4C4C", background: "#EEF1F0", borderRadius: 4,
+                    padding: "3px 8px", fontFamily: "'Lexend', sans-serif", lineHeight: 1.4,
+                  }}>
+                    🎯 {t}
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <>
+              <div style={{ color: "#FF6252", fontSize: 10, letterSpacing: 3, textTransform: "uppercase", fontFamily: "'Lexend', sans-serif", fontWeight: 600, marginBottom: 3 }}>
+                Digital Note Builder
+              </div>
+              <div style={{ color: "#3F4C4C", fontSize: 18, fontWeight: "bold" }}>
+                My Learning Notes
+              </div>
+            </>
+          )}
         </div>
         <input
           value={topic}
           onChange={(e) => setTopic(e.target.value)}
           placeholder="🔍 Topic or reading title..."
           style={{
-            marginLeft: "auto",
             background: "#EEF1F0",
             border: "1px solid #DCE2E1",
             borderRadius: 6,
@@ -299,6 +322,7 @@ export default function NoteCatcher() {
             fontFamily: "'Lexend', sans-serif",
             width: 260,
             outline: "none",
+            flexShrink: 0,
           }}
         />
       </div>
@@ -412,7 +436,7 @@ export default function NoteCatcher() {
             </>
           ) : (
             <div style={{ padding: "8px 10px 14px", flex: 1 }}>
-              {["ms", "hs"].map((bandKey) => {
+              {(gradeBand === "hs" ? ["ms", "hs"] : ["ms"]).map((bandKey) => {
                 const band = BANDS[bandKey];
                 const templates = ORGANIZER_TEMPLATES.filter((t) => t.band === bandKey);
                 return (
@@ -510,6 +534,12 @@ export default function NoteCatcher() {
                         fontFamily: "'Lexend', sans-serif",
                         fontWeight: "bold",
                       }}>{note.type === "organizer" ? note.bandLabel : note.levelLabel}</span>
+                      {note.time && (
+                        <span style={{
+                          fontSize: 9, color: "#7A8B8B", background: "#EEF1F0",
+                          padding: "2px 6px", borderRadius: 3, fontFamily: "'Lexend', sans-serif",
+                        }}>{note.time}</span>
+                      )}
                     </div>
                     <div style={{ display: "flex", gap: 2 }}>
                       <button onClick={() => moveNote(note.uid, -1)} disabled={idx === 0} style={{ background: "none", border: "none", cursor: idx === 0 ? "default" : "pointer", opacity: idx === 0 ? 0.2 : 0.5, fontSize: 13, padding: "2px 4px" }}>↑</button>

@@ -257,8 +257,8 @@ def next_uid():
     return st.session_state.note_counter
 
 
-def add_block(block, level):
-    st.session_state.notes.append({
+def add_block(block, level, notes_key="notes"):
+    st.session_state[notes_key].append({
         "type": "block",
         "uid": next_uid(),
         "label": block["label"],
@@ -274,12 +274,12 @@ def add_block(block, level):
     })
 
 
-def add_organizer(template_id):
+def add_organizer(template_id, notes_key="notes"):
     tmpl = next((t for t in ORGANIZER_TEMPLATES if t["id"] == template_id), None)
     if not tmpl:
         return
     band = BANDS[tmpl["band"]]
-    st.session_state.notes.append({
+    st.session_state[notes_key].append({
         "type": "organizer",
         "organizerId": template_id,
         "uid": next_uid(),
@@ -294,12 +294,12 @@ def add_organizer(template_id):
     })
 
 
-def remove_note(uid):
-    st.session_state.notes = [n for n in st.session_state.notes if n["uid"] != uid]
+def remove_note(uid, notes_key="notes"):
+    st.session_state[notes_key] = [n for n in st.session_state[notes_key] if n["uid"] != uid]
 
 
-def move_note(uid, direction):
-    notes = st.session_state.notes
+def move_note(uid, direction, notes_key="notes"):
+    notes = st.session_state[notes_key]
     idx = next((i for i, n in enumerate(notes) if n["uid"] == uid), None)
     if idx is None:
         return
@@ -754,8 +754,57 @@ SCI_BIO_LESSON = {
 }
 
 
-def render_curriculum_tab(lesson, tab_key):
-    """Render a pre-populated curriculum note catcher."""
+def render_curriculum_tab(lesson, tab_key, grade_band="ms"):
+    """Render an editable curriculum note catcher with DOK counter."""
+    notes_key = f"{tab_key}_notes"
+
+    # Initialize notes from lesson blocks on first load
+    if notes_key not in st.session_state:
+        initial = []
+        for block in lesson["blocks"]:
+            level = LEVELS[block["level"]]
+            org_id = block.get("organizer")
+            base = {
+                "uid": next_uid(),
+                "levelId": level["id"],
+                "levelLabel": level["label"],
+                "curriculum_label": block["label"],
+                "curriculum_prompt": block["prompt"],
+                "curriculum_time": block["time"],
+            }
+            if org_id:
+                tmpl = next((t for t in ORGANIZER_TEMPLATES if t["id"] == org_id), None)
+                if tmpl:
+                    band = BANDS[tmpl["band"]]
+                    initial.append({
+                        **base,
+                        "type": "organizer",
+                        "organizerId": org_id,
+                        "label": tmpl["label"],
+                        "icon": tmpl["icon"],
+                        "color": band["color"],
+                        "bg": band["bg"],
+                        "border": band["border"],
+                        "tagBg": band["tagBg"],
+                        "bandLabel": band["label"],
+                        "organizerData": block["organizerData"],
+                    })
+                    continue
+            # Text block (no organizer or organizer not found)
+            initial.append({
+                **base,
+                "type": "block",
+                "label": block["label"],
+                "prompt": block["prompt"],
+                "color": level["color"],
+                "bg": level["bg"],
+                "border": level["border"],
+                "tagBg": level["tagBg"],
+                "text": "",
+                "drawing": False,
+            })
+        st.session_state[notes_key] = initial
+
     # Lesson header
     st.markdown(
         f'<div style="margin-bottom:16px">'
@@ -779,55 +828,188 @@ def render_curriculum_tab(lesson, tab_key):
         unsafe_allow_html=True,
     )
 
-    # Note blocks and organizers
-    for i, block in enumerate(lesson["blocks"]):
-        level = LEVELS[block["level"]]
-        org_id = block.get("organizer")
-        org_label = ""
-        if org_id:
-            tmpl = next((t for t in ORGANIZER_TEMPLATES if t["id"] == org_id), None)
-            if tmpl:
-                org_label = (
+    main_col, summary_col = st.columns([5, 1])
+    notes = st.session_state[notes_key]
+
+    with main_col:
+        for idx, note in enumerate(notes):
+            border_color = note["color"]
+            display_label = note.get("curriculum_label", note["label"])
+
+            # Time badge (curriculum blocks only)
+            time_html = ""
+            if "curriculum_time" in note:
+                time_html = (
+                    f'<span style="font-size:10px;color:#A3AAA8;margin-left:auto">'
+                    f'{note["curriculum_time"]}</span>'
+                )
+
+            # DOK tag
+            dok_html = ""
+            if "levelId" in note:
+                level = next((l for l in LEVELS if l["id"] == note["levelId"]), None)
+                if level:
+                    dok_html = (
+                        f'<span class="note-tag" style="background:{level["tagBg"]};'
+                        f'color:{level["color"]}">{level["dok"]}</span>'
+                    )
+
+            # Organizer badge
+            org_badge = ""
+            if note["type"] == "organizer":
+                org_badge = (
                     f'<span style="font-size:10px;padding:2px 6px;border-radius:4px;'
                     f'background:#EEF1F0;color:#3F4C4C;font-weight:500">'
-                    f'{tmpl["icon"]} {tmpl["label"]}</span>'
+                    f'{note.get("icon", "")} {note["label"]}</span>'
                 )
+
+            # Band tag for student-added organizers (no DOK)
+            band_tag = ""
+            if not dok_html and note.get("bandLabel"):
+                band_tag = (
+                    f'<span class="note-tag" style="background:{note["tagBg"]};'
+                    f'color:{border_color}">{note["bandLabel"]}</span>'
+                )
+
+            # Icon for student-added organizers
+            icon_html = ""
+            if note.get("icon") and not note.get("curriculum_label"):
+                icon_html = f'<span style="font-size:15px">{note["icon"]}</span>'
+
+            with st.container():
+                st.markdown(
+                    f'<div style="border-left:5px solid {border_color};border:1.5px solid {note["border"]};'
+                    f'border-left:5px solid {border_color};border-radius:9px;padding:4px 0 0 0;'
+                    f'margin-bottom:4px;background:#FFFFFF;box-shadow:0 2px 8px rgba(0,0,0,0.05)">'
+                    f'<div style="padding:6px 12px 0;display:flex;align-items:center;gap:7px;flex-wrap:wrap">'
+                    f'{icon_html}'
+                    f'<span class="note-label">{display_label}</span>'
+                    f'{dok_html}{band_tag}{org_badge}{time_html}'
+                    f'</div></div>',
+                    unsafe_allow_html=True,
+                )
+
+                # Controls row
+                ctrl_cols = st.columns([1, 1, 1, 8])
+                with ctrl_cols[0]:
+                    if idx > 0 and st.button("↑", key=f"{tab_key}_up_{note['uid']}"):
+                        move_note(note["uid"], -1, notes_key)
+                        st.rerun()
+                with ctrl_cols[1]:
+                    if idx < len(notes) - 1 and st.button("↓", key=f"{tab_key}_dn_{note['uid']}"):
+                        move_note(note["uid"], 1, notes_key)
+                        st.rerun()
+                with ctrl_cols[2]:
+                    if st.button("✕", key=f"{tab_key}_rm_{note['uid']}"):
+                        remove_note(note["uid"], notes_key)
+                        st.rerun()
+
+                # Prompt text
+                prompt = note.get("curriculum_prompt", note.get("prompt", ""))
+                if prompt:
+                    st.markdown(
+                        f'<div class="prompt-text">{prompt}</div>', unsafe_allow_html=True
+                    )
+
+                # Content
+                if note["type"] == "organizer":
+                    renderer = ORGANIZER_RENDERERS.get(note["organizerId"])
+                    if renderer:
+                        renderer(note, idx)
+                else:
+                    note["text"] = st.text_area(
+                        "Note text", note.get("text", ""),
+                        key=f"{tab_key}_txt_{note['uid']}",
+                        height=80, label_visibility="collapsed",
+                        placeholder="Write here...",
+                    )
+
+                st.markdown("---")
+
+        # Add block / organizer controls
+        with st.expander("+ Add a block or organizer"):
+            add_mode = st.radio(
+                "Add", ["Block", "Organizer"], horizontal=True,
+                key=f"{tab_key}_add_mode", label_visibility="collapsed",
+            )
+            if add_mode == "Block":
+                level_names = [f"{l['dok']} - {l['label']}" for l in LEVELS]
+                active_idx = st.radio(
+                    "DOK Level", range(len(LEVELS)),
+                    format_func=lambda i: level_names[i],
+                    key=f"{tab_key}_dok_sel",
+                    label_visibility="collapsed",
+                )
+                active_level = LEVELS[active_idx]
+                for blk in active_level["blocks"]:
+                    if st.button(
+                        blk["label"],
+                        key=f'{tab_key}_ab_{active_level["id"]}_{blk["id"]}',
+                        use_container_width=True,
+                    ):
+                        add_block(blk, active_level, notes_key)
+                        st.rerun()
+            else:
+                allowed_bands = ["ms"] if grade_band == "ms" else ["ms", "hs"]
+                for band_key in allowed_bands:
+                    band = BANDS[band_key]
+                    templates = [t for t in ORGANIZER_TEMPLATES if t["band"] == band_key]
+                    st.markdown(
+                        f'<div style="color:{band["color"]};font-size:10px;letter-spacing:1.5px;'
+                        f'text-transform:uppercase;font-weight:600;margin:8px 0 6px">'
+                        f'{band["label"]}</div>',
+                        unsafe_allow_html=True,
+                    )
+                    for tmpl in templates:
+                        if st.button(
+                            f'{tmpl["icon"]}  {tmpl["label"]}',
+                            key=f'{tab_key}_ao_{tmpl["id"]}',
+                            use_container_width=True,
+                        ):
+                            add_organizer(tmpl["id"], notes_key)
+                            st.rerun()
+
+    with summary_col:
         st.markdown(
-            f'<div style="border-left:5px solid {level["color"]};border:1.5px solid {level["border"]};'
-            f'border-left:5px solid {level["color"]};border-radius:9px;padding:4px 0 0 0;'
-            f'margin-bottom:4px;background:#FFFFFF;box-shadow:0 2px 8px rgba(0,0,0,0.05)">'
-            f'<div style="padding:6px 12px 0;display:flex;align-items:center;gap:7px;flex-wrap:wrap">'
-            f'<span class="note-label">{block["label"]}</span>'
-            f'<span class="note-tag" style="background:{level["tagBg"]};color:{level["color"]}">'
-            f'{level["dok"]}</span>'
-            f'{org_label}'
-            f'<span style="font-size:10px;color:#A3AAA8;margin-left:auto">{block["time"]}</span>'
-            f'</div></div>',
+            '<div style="font-size:10px;color:#3F4C4C;letter-spacing:2px;text-transform:uppercase;'
+            'font-weight:600;margin-bottom:10px">My Notes Map</div>',
             unsafe_allow_html=True,
         )
-        st.markdown(
-            f'<div class="prompt-text">{block["prompt"]}</div>', unsafe_allow_html=True
-        )
-
-        # Render organizer or plain text block
-        if org_id and org_id in ORGANIZER_RENDERERS:
-            # Build a note-like dict the renderer expects
-            ss_key = f"{tab_key}_org_{i}"
-            if ss_key not in st.session_state:
-                st.session_state[ss_key] = {
-                    "uid": ss_key,
-                    "organizerData": block["organizerData"],
-                }
-            ORGANIZER_RENDERERS[org_id](st.session_state[ss_key], i)
-        else:
-            st.text_area(
-                block["label"],
-                key=f"{tab_key}_text_{i}",
-                height=100,
-                label_visibility="collapsed",
-                placeholder="Write your notes here...",
+        for level in LEVELS:
+            count = len([n for n in notes if n.get("levelId") == level["id"]])
+            pct = (count / len(notes) * 100) if notes else 0
+            st.markdown(
+                f'<div style="margin-bottom:10px">'
+                f'<div style="display:flex;justify-content:space-between;margin-bottom:2px">'
+                f'<span style="font-size:10px;color:#3F4C4C;font-weight:500">{level["dok"]}</span>'
+                f'<span style="font-size:10px;color:{level["color"]};font-weight:700">{count}</span>'
+                f'</div>'
+                f'<div style="height:5px;background:#DCE2E1;border-radius:3px;overflow:hidden">'
+                f'<div style="height:100%;width:{pct}%;background:{level["color"]};border-radius:3px;'
+                f'transition:width 0.3s"></div></div></div>',
+                unsafe_allow_html=True,
             )
-        st.markdown("---")
+        total = len(notes)
+        org_count = len([n for n in notes if n["type"] == "organizer"])
+        higher = len([n for n in notes if n.get("levelId") in ("evaluate", "analyze")])
+        block_notes = [n for n in notes if n["type"] != "organizer"]
+        summary_html = (
+            f'<div class="summary-box"><div style="font-weight:bold;color:#3F4C4C;'
+            f'margin-bottom:5px">Total: {total} blocks</div>'
+        )
+        if org_count > 0:
+            summary_html += (
+                f'<div style="color:#09B472;margin-bottom:4px">'
+                f'📐 {org_count} organizer{"s" if org_count > 1 else ""}</div>'
+            )
+        if total > 0 and higher == 0 and block_notes:
+            summary_html += '<div style="color:#A18630">💡 Try an analysis or evaluation block!</div>'
+        if higher > 0:
+            summary_html += '<div style="color:#09B472">✓ Strong higher-order thinking!</div>'
+        if total >= 5:
+            summary_html += '<div style="color:#13B5EA;margin-top:4px">📚 Solid note set!</div>'
+        summary_html += "</div>"
+        st.markdown(summary_html, unsafe_allow_html=True)
 
 
 # ──────────────────────────────────────────────
@@ -989,15 +1171,15 @@ with tab_builder:
 
 # ─── Tab 2: EL Grade 3 Note Catcher ───
 with tab_el:
-    render_curriculum_tab(EL_G3_LESSON, "el_g3")
+    render_curriculum_tab(EL_G3_LESSON, "el_g3", grade_band="ms")
 
 # ─── Tab 3: Math Grade 7 Note Catcher ───
 with tab_math:
-    render_curriculum_tab(MATH_G7_LESSON, "math_g7")
+    render_curriculum_tab(MATH_G7_LESSON, "math_g7", grade_band="ms")
 
 # ─── Tab 4: Science Biology Note Catcher ───
 with tab_sci:
-    render_curriculum_tab(SCI_BIO_LESSON, "sci_bio")
+    render_curriculum_tab(SCI_BIO_LESSON, "sci_bio", grade_band="both")
 
 # ──────────────────────────────────────────────
 # SIDEBAR (Palette for Digital Note Builder)
