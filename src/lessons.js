@@ -129,6 +129,51 @@ export const SCI_BIO_LESSON = {
   ],
 };
 
+export const OSE_G8_LESSON = {
+  title: "How Could Organisms Living Today Be Connected to Organisms That Lived Long Ago?",
+  subtitle: "OpenSciEd TN Custom · Grade 8 · Unit 6, Lesson 6",
+  targets: [
+    "I can identify patterns of differences in body structures over long periods of time and multiple generations.",
+    "I can construct an argument about how ancient organisms are connected to modern organisms through lines of descendants.",
+  ],
+  gradeBand: "ms",
+  blocks: [
+    {
+      label: "Recall & Connect",
+      prompt: "What did we figure out in the last lesson about body structure patterns? What questions do we still have?",
+      level: 0, time: "Day 1 · Navigation · 8 min",
+      organizer: "kwl",
+      organizerData: { know: [""], want: [""], learned: [""] },
+    },
+    {
+      label: "Ancient & Modern Penguins",
+      prompt: "Compare the body structures of ancient and modern penguins. What similarities and differences do you notice?",
+      level: 1, time: "Day 1 · Activity · 15 min",
+      organizer: "tchart",
+      organizerData: { leftHeader: "Ancient Penguin Structures", rightHeader: "Modern Penguin Structures", rows: [{ left: "", right: "" }] },
+    },
+    {
+      label: "Lines of Descent",
+      prompt: "Which penguins could be ancestors of modern penguins? What evidence supports your claim? What evidence challenges it?",
+      level: 2, time: "Day 1 · Discussion · 22 min",
+      organizer: "venn",
+      organizerData: { leftLabel: "Evidence For Connection", rightLabel: "Evidence Against", leftOnly: "", overlap: "", rightOnly: "" },
+    },
+    {
+      label: "Explaining Population Changes",
+      prompt: "How could body structure variations change in a line of descendants over time? What might cause these changes in a population?",
+      level: 3, time: "Day 2 · Activities · 20 min",
+    },
+    {
+      label: "New Investigation Questions",
+      prompt: "What new questions do you have about how traits change in populations over time? What would you add to the Driving Question Board?",
+      level: 2, time: "Day 2 · DQB · 20 min",
+      organizer: "mindmap",
+      organizerData: { center: "Changes in Populations", branches: ["What causes changes?", "How long does it take?", "What evidence would we need?"] },
+    },
+  ],
+};
+
 export function buildLessonNotes(lesson) {
   return buildNotes(lesson.blocks);
 }
@@ -137,5 +182,6 @@ export const TABS = [
   { key: "builder", label: "Digital Note Builder", lesson: null },
   { key: "el-g3", label: "EL Grade 3", lesson: EL_G3_LESSON },
   { key: "math-g7", label: "Math Grade 7", lesson: MATH_G7_LESSON },
+  { key: "ose-g8", label: "Science Grade 8", lesson: OSE_G8_LESSON },
   { key: "sci-bio", label: "Science Biology", lesson: SCI_BIO_LESSON },
 ];
