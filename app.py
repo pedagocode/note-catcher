@@ -130,17 +130,9 @@ st.markdown("""
     }
     /* Radio pills */
     .stRadio > div { gap: 4px; }
-    /* Hide default streamlit chrome but keep sidebar toggle clickable */
+    /* Hide default streamlit chrome */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
-    header {visibility: hidden;}
-    [data-testid="collapsedControl"] {
-        visibility: visible !important;
-        position: fixed;
-        top: 0.375rem;
-        left: 0.375rem;
-        z-index: 999999;
-    }
     .block-container { padding-top: 1rem; }
 </style>
 """, unsafe_allow_html=True)
